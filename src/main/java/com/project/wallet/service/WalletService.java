@@ -62,4 +62,27 @@ public class WalletService {
 
         return walletResponse;
     }
+
+    public WalletResponseVO withdraw(Long id, BigDecimal amount){
+        log.info("Withdrawing {} from wallet with id: {}", amount, id);
+
+        Wallet wallet;
+        try {
+            wallet = walletRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Wallet not found with id: " + id));
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+
+        wallet.withdrawFunds(amount);
+
+        Wallet updatedWallet = walletRepository.save(wallet);
+
+        WalletResponseVO walletResponse = WalletResponseVO.from(updatedWallet);
+
+        log.info("Withdrawal successful. Updated wallet: {}", walletResponse);
+
+        return walletResponse;
+    }
 }

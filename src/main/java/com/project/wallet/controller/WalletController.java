@@ -40,4 +40,13 @@ public class WalletController {
     public WalletResponseVO deposit(@PathVariable Long id, @PathVariable BigDecimal amount){
         return walletService.deposit(id, amount);
     }
+
+    @Operation(
+            description = "Withdraw funds on wallet",
+            tags = {"Wallet Management"})
+    @ApiResponse(responseCode = "200", description = "Funds withdrawn from the wallet")
+    @PostMapping("{id}/withdraw/{amount}")
+    public WalletResponseVO withdraw(@PathVariable Long id, @PathVariable BigDecimal amount){
+        return walletService.withdraw(id, amount);
+    }
 }
