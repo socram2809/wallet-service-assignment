@@ -59,4 +59,13 @@ public class WalletController {
     public WalletResponseVO withdraw(@PathVariable Long id, @PathVariable BigDecimal amount){
         return walletService.withdraw(id, amount);
     }
+
+    @Operation(
+            description = "Transfer funds from wallet",
+            tags = {"Wallet Management"})
+    @ApiResponse(responseCode = "200", description = "Funds transferred from the wallet")
+    @PostMapping("{id}/transfer/{amount}/recepient/{recipientId}")
+    public WalletResponseVO transfer(@PathVariable Long id, @PathVariable BigDecimal amount, @PathVariable Long recipientId){
+        return walletService.transfer(id, amount, recipientId);
+    }
 }

@@ -5,6 +5,7 @@ import com.project.wallet.repository.WalletRepository;
 import com.project.wallet.vo.WalletBalanceResponseVO;
 import com.project.wallet.vo.WalletCreateRequestVO;
 import com.project.wallet.vo.WalletResponseVO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -104,5 +105,35 @@ public class WalletService {
         log.info("Withdrawal successful. Updated wallet: {}", walletResponse);
 
         return walletResponse;
+    }
+
+    @Transactional
+    public WalletResponseVO transfer(Long id, BigDecimal amount, Long recipientId){
+        log.info("Transferring {} from wallet with id: {} to wallet with id: {}", amount, id, recipientId);
+
+        Wallet senderWallet;
+        Wallet recipientWallet;
+
+        try {
+            senderWallet = walletRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Sender wallet not found with id: " + id));
+            recipientWallet = walletRepository.findById(recipientId)
+                    .orElseThrow(() -> new NoSuchElementException("Recipient wallet not found with id: " + recipientId));
+        } catch(NoSuchElementException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+
+        senderWallet.transferFunds(amount, recipientWallet);
+
+        walletRepository.save(senderWallet);
+
+        walletRepository.save(recipientWallet);
+
+        WalletResponseVO senderWalletResponse = WalletResponseVO.from(senderWallet);
+
+        log.info("Transfer successful. Sender wallet: {}", senderWalletResponse);
+
+        return senderWalletResponse;
     }
 }
