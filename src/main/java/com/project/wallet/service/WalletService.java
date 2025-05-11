@@ -2,6 +2,7 @@ package com.project.wallet.service;
 
 import com.project.wallet.domain.Wallet;
 import com.project.wallet.repository.WalletRepository;
+import com.project.wallet.vo.WalletBalanceResponseVO;
 import com.project.wallet.vo.WalletCreateRequestVO;
 import com.project.wallet.vo.WalletResponseVO;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,25 @@ public class WalletService {
         log.info("Wallet created successfully: {}", walletResponse);
 
         return walletResponse;
+    }
+
+    public WalletBalanceResponseVO retrieveBalance(Long id) {
+        log.info("Retrieving balance for wallet with id: {}", id);
+
+        Wallet wallet;
+        try {
+            wallet = walletRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Wallet not found with id: " + id));
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+
+        WalletBalanceResponseVO walletBalanceResponseVO = WalletBalanceResponseVO.from(wallet);
+
+        log.info("Retrieved balance: {} for wallet with id: {}", walletBalanceResponseVO.getBalance(), id);
+
+        return walletBalanceResponseVO;
     }
 
     public WalletResponseVO deposit(Long id, BigDecimal amount){

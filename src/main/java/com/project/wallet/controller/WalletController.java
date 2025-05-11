@@ -1,6 +1,7 @@
 package com.project.wallet.controller;
 
 import com.project.wallet.service.WalletService;
+import com.project.wallet.vo.WalletBalanceResponseVO;
 import com.project.wallet.vo.WalletCreateRequestVO;
 import com.project.wallet.vo.WalletResponseVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,15 @@ public class WalletController {
     public WalletResponseVO create(
             @Valid @RequestBody WalletCreateRequestVO walletCreateRequest) {
         return walletService.create(walletCreateRequest);
+    }
+
+    @Operation(
+            description = "Get balance from wallet",
+            tags = {"Wallet Management"})
+    @ApiResponse(responseCode = "200", description = "Balance retrieved from wallet")
+    @GetMapping("{id}/balance")
+    public WalletBalanceResponseVO retrieveBalance(@PathVariable Long id) {
+        return walletService.retrieveBalance(id);
     }
 
     @Operation(
