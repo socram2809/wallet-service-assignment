@@ -1,5 +1,6 @@
 package com.project.wallet.service;
 
+import com.project.wallet.domain.HistoricalBalance;
 import com.project.wallet.domain.Wallet;
 import com.project.wallet.repository.WalletRepository;
 import com.project.wallet.vo.WalletBalanceResponseVO;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 @Service
@@ -20,6 +22,9 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
 
+    private final HistorialBalanceService historicalBalanceService;
+
+    @Transactional
     public WalletResponseVO create(WalletCreateRequestVO walletCreateRequest){
         log.info("Creating wallet for user: {}", walletCreateRequest.getUserIdentification());
 
@@ -34,6 +39,8 @@ public class WalletService {
         Wallet wallet = new Wallet(walletCreateRequest.getUserIdentification());
 
         Wallet newWallet = walletRepository.save(wallet);
+
+        historicalBalanceService.create(newWallet);
 
         WalletResponseVO walletResponse = WalletResponseVO.from(newWallet);
 
@@ -61,6 +68,7 @@ public class WalletService {
         return walletBalanceResponseVO;
     }
 
+    @Transactional
     public WalletResponseVO deposit(Long id, BigDecimal amount){
         log.info("Depositing {} to wallet with id: {}", amount, id);
 
@@ -77,6 +85,8 @@ public class WalletService {
 
         Wallet updatedWallet = walletRepository.save(wallet);
 
+        historicalBalanceService.create(updatedWallet);
+
         WalletResponseVO walletResponse = WalletResponseVO.from(updatedWallet);
 
         log.info("Deposit successful. Updated wallet: {}", walletResponse);
@@ -84,6 +94,7 @@ public class WalletService {
         return walletResponse;
     }
 
+    @Transactional
     public WalletResponseVO withdraw(Long id, BigDecimal amount){
         log.info("Withdrawing {} from wallet with id: {}", amount, id);
 
@@ -99,6 +110,8 @@ public class WalletService {
         wallet.withdrawFunds(amount);
 
         Wallet updatedWallet = walletRepository.save(wallet);
+
+        historicalBalanceService.create(updatedWallet);
 
         WalletResponseVO walletResponse = WalletResponseVO.from(updatedWallet);
 
@@ -128,12 +141,37 @@ public class WalletService {
 
         walletRepository.save(senderWallet);
 
+        historicalBalanceService.create(senderWallet);
+
         walletRepository.save(recipientWallet);
+
+        historicalBalanceService.create(recipientWallet);
 
         WalletResponseVO senderWalletResponse = WalletResponseVO.from(senderWallet);
 
         log.info("Transfer successful. Sender wallet: {}", senderWalletResponse);
 
         return senderWalletResponse;
+    }
+
+    public WalletBalanceResponseVO retrieveHistoricalBalance(Long id, LocalDateTime date) {
+        log.info("Retrieving historical balance for wallet with id: {} on date: {}", id, date);
+
+        Wallet wallet;
+        try {
+            wallet = walletRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Wallet not found with id: " + id));
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+
+        HistoricalBalance historicalBalance = historicalBalanceService.findLastByWalletIdAndTransactionDateLessThanEqual(wallet.getId(), date);
+
+        WalletBalanceResponseVO walletBalanceResponseVO = WalletBalanceResponseVO.from(historicalBalance);
+
+        log.info("Retrieved historical balance: {} for wallet with id: {}", walletBalanceResponseVO.getBalance(), wallet.getId());
+
+        return walletBalanceResponseVO;
     }
 }
