@@ -1,10 +1,13 @@
 package com.project.wallet.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -14,16 +17,17 @@ import java.math.BigDecimal;
 public class Wallet {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotEmpty
-    private String userEmail;
+    private String userIdentification;
 
     @NotNull
     private BigDecimal balance;
 
-    public Wallet(String userEmail) {
-        this.userEmail = userEmail;
+    public Wallet(String userIdentification) {
+        this.userIdentification = userIdentification;
         this.balance = BigDecimal.ZERO;
     }
 
