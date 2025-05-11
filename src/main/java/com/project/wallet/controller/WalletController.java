@@ -9,10 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @Tag(name = "Wallet Management", description = "Wallet management to deposit, withdraw and transfer funds")
 @RequestMapping("/wallet")
@@ -31,5 +30,14 @@ public class WalletController {
     public WalletResponseVO create(
             @Valid @RequestBody WalletCreateRequestVO walletCreateRequest) {
         return walletService.create(walletCreateRequest);
+    }
+
+    @Operation(
+            description = "Deposit funds on wallet",
+            tags = {"Wallet Management"})
+    @ApiResponse(responseCode = "200", description = "Funds deposited on wallet")
+    @PostMapping("{id}/deposit/{amount}")
+    public WalletResponseVO deposit(@PathVariable Long id, @PathVariable BigDecimal amount){
+        return walletService.deposit(id, amount);
     }
 }

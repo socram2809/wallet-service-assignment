@@ -8,12 +8,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 
 @Getter
 @NoArgsConstructor
 @Entity
+@Slf4j
 public class Wallet {
 
     @Id
@@ -35,7 +37,9 @@ public class Wallet {
         if (amount.compareTo(BigDecimal.ZERO) > 0) {
             this.balance = this.balance.add(amount);
         } else {
-            throw new IllegalArgumentException("Deposit amount must be positive");
+            String error = "Deposit amount must be positive";
+            log.error(error);
+            throw new IllegalArgumentException(error);
         }
     }
 
@@ -43,6 +47,8 @@ public class Wallet {
         if (amount.compareTo(BigDecimal.ZERO) > 0 && this.balance.compareTo(amount) >= 0) {
             this.balance = this.balance.subtract(amount);
         } else {
+            String error = "Withdrawal amount must be positive and less than or equal to the balance";
+            log.error(error);
             throw new IllegalArgumentException("Withdrawal amount must be positive and less than or equal to the balance");
         }
     }
@@ -52,6 +58,8 @@ public class Wallet {
             this.balance = this.balance.subtract(amount);
             recipient.depositFunds(amount);
         } else {
+            String error = "Transfer amount must be positive and less than or equal to the balance";
+            log.error(error);
             throw new IllegalArgumentException("Transfer amount must be positive and less than or equal to the balance");
         }
     }

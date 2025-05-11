@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Slf4j
@@ -35,7 +36,12 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
      @ExceptionHandler(IllegalArgumentException.class)
      public ResponseEntity<ResponseError> handleIllegalArgumentException(IllegalArgumentException ex) {
          ResponseError responseError = new ResponseError(ex.getMessage());
-         log.error("message={}", responseError.message());
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseError);
      }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ResponseError> handleNoSuchElementException(NoSuchElementException ex) {
+        ResponseError responseError = new ResponseError(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseError);
+    }
 }

@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,12 +33,32 @@ public class WalletService {
 
         Wallet newWallet = walletRepository.save(wallet);
 
-        WalletResponseVO walletResponse = new WalletResponseVO();
-        walletResponse.setId(newWallet.getId());
-        walletResponse.setUserIdentification(newWallet.getUserIdentification());
-        walletResponse.setBalance(newWallet.getBalance());
+        WalletResponseVO walletResponse = WalletResponseVO.from(newWallet);
 
         log.info("Wallet created successfully: {}", walletResponse);
+
+        return walletResponse;
+    }
+
+    public WalletResponseVO deposit(Long id, BigDecimal amount){
+        log.info("Depositing {} to wallet with id: {}", amount, id);
+
+        Wallet wallet;
+        try {
+            wallet = walletRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Wallet not found with id: " + id));
+        } catch (NoSuchElementException e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+
+        wallet.depositFunds(amount);
+
+        Wallet updatedWallet = walletRepository.save(wallet);
+
+        WalletResponseVO walletResponse = WalletResponseVO.from(updatedWallet);
+
+        log.info("Deposit successful. Updated wallet: {}", walletResponse);
 
         return walletResponse;
     }
