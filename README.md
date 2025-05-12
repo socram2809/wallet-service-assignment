@@ -38,3 +38,4 @@ Logs are implemented using SLF4J to audit and track this mission-critical applic
 ## Compromises
 - Due to time constraints, the application does not include user authentication and authorization. In a production environment, it is crucial to implement security measures to protect sensitive data and ensure that only authorized users can access certain endpoints.
 - Integration tests are not included in this version of the application. In a production environment, it is important to have comprehensive tests to ensure that all components work together as expected.
+- The project is not fully covered by unit tests. In a production environment, it is important to have a high level of test coverage to ensure that the application behaves as expected and to catch any potential bugs early in the development process.

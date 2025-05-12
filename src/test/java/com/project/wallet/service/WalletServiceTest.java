@@ -1,5 +1,6 @@
 package com.project.wallet.service;
 
+import com.project.wallet.domain.HistoricalBalance;
 import com.project.wallet.domain.Wallet;
 import com.project.wallet.repository.WalletRepository;
 import com.project.wallet.vo.WalletBalanceResponseVO;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -137,5 +139,25 @@ class WalletServiceTest {
         assertEquals(senderWallet.getBalance(), walletResponse.getBalance());
         assertEquals(senderWallet.getUserIdentification(), walletResponse.getUserIdentification());
         assertEquals(senderWallet.getId(), walletResponse.getId());
+    }
+
+    @Test
+    void testRetrieveHistoricalBalance() {
+        Long walletId = 1L;
+        Wallet wallet = new Wallet("user123");
+        wallet.setId(walletId);
+        wallet.depositFunds(new BigDecimal("100.00"));
+        LocalDateTime now = LocalDateTime.now();
+        HistoricalBalance historicalBalance = new HistoricalBalance(wallet);
+
+        when(walletRepository.findById(eq(walletId)))
+                .thenReturn(Optional.of(wallet));
+        when(historicalBalanceService.findLastByWalletIdAndTransactionDateLessThanEqual(walletId, now))
+                .thenReturn(historicalBalance);
+
+        WalletBalanceResponseVO walletResponse = walletService.retrieveHistoricalBalance(walletId, now);
+
+        assertNotNull(walletResponse);
+        assertEquals(wallet.getBalance(), walletResponse.getBalance());
     }
 }
