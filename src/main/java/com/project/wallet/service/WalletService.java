@@ -22,7 +22,7 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
 
-    private final HistorialBalanceService historicalBalanceService;
+    private final HistoricalBalanceService historicalBalanceService;
 
     @Transactional
     public WalletResponseVO create(WalletCreateRequestVO walletCreateRequest){

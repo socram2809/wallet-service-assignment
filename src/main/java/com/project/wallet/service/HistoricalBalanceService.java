@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class HistorialBalanceService {
+public class HistoricalBalanceService {
 
     private final HistoricalBalanceRepository historicalBalanceRepository;
 
